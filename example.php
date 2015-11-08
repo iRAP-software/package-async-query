@@ -5,21 +5,43 @@ namespace iRAP\AsyncQuery;
 
 require_once(__DIR__ . '/AsyncQuery.php');
 require_once(__DIR__ . '/AsyncQueryManager.php');
+require_once(__DIR__ . '/AsyncQueryExecutor.php');
+require_once(__DIR__ . '/ConnectionHandler.php');
 
 $host = "";
-$username = "";
+$user = "";
 $password = "";
 $database = "";
-$connLimit = 2;
+$connLimit = 3;
+
+$connectionHandler = new ConnectionHandler($connLimit, $host, $user, $password, $database);
+$queryManager = new AsyncQueryManager($connectionHandler);
 
 
-$queryManager = new AsyncQueryManager($host, $username, $password, $database, $connLimit);
+$getConcatLength1 = new AsyncQuery("select @@group_concat_max_len;  ", $callback=function(\mysqli_result $result) { print "1 concat max length: " . print_r($result->fetch_assoc()['@@group_concat_max_len'], true). PHP_EOL; });
+$getConcatLength2 = new AsyncQuery("select @@group_concat_max_len;  ", $callback=function(\mysqli_result $result) { print "2 concat max length: " . print_r($result->fetch_assoc()['@@group_concat_max_len'], true). PHP_EOL; });
+$setConcatLength = new AsyncQuery("SET group_concat_max_len = 18446744073709547520", $callback=function($result) { print "Set the concat length" . PHP_EOL; });
 
-print "sending queries" . PHP_EOL;
-$queryManager->query("show tables", $callback=function(\mysqli_result $result) { print "handled query1" . PHP_EOL; });
-$queryManager->query("show tables", $callback=function(\mysqli_result $result) { print "handled query2" . PHP_EOL; });
-$queryManager->query("show tables", $callback=function(\mysqli_result $result) { print "handled query3" . PHP_EOL; });
-$queryManager->query("show tables", $callback=function(\mysqli_result $result) { print "handled query4" . PHP_EOL; });
+print "sending queries." . PHP_EOL;
+
+
+
+
+$queryManager->query(array(
+    $getConcatLength1
+));
+
+$queryManager->query(array(
+    $setConcatLength,
+    $getConcatLength2
+));
+
+$queryManager->query(array(
+    $getConcatLength1
+));
+
+
+
 
 
 
@@ -32,25 +54,6 @@ while ($queryManager->count() > 0)
     sleep(1);
 }
 
-$asyncQuery = new AsyncQuery($query = "show tables", 
-                             $callback = function(\mysqli_result $result) { print "handled query4" . PHP_EOL; },
-                             $host, 
-                             $username, 
-                             $password, 
-                             $database);
-                             
-while( ($asyncQuery->run()) == FALSE)
-{
-    # Wait for the query to finish running.
-    sleep(1);
-}
-
-$result = $asyncQuery->getResult();
-
-while(($row = $result->fetch_array()) !== null)
-{
-    print $row[0];
-}
 
 
 

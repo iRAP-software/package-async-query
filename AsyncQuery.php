@@ -1,6 +1,6 @@
 <?php
 
-/*
+/*;
  * Object to simplify execution of asynchronous queries. This means that you can send off a query without waiting
  * for the results. This prevents wasting a lot of compute time on IO.
  * 
@@ -14,10 +14,9 @@ namespace iRAP\AsyncQuery;
 
 class AsyncQuery
 {
-    private $m_connection; # a single mysqli object owned only by this object
-    private $m_callback; # the function to run (if any) once the result has been fetched.
-    private $m_result; # where the result is stored.
-    
+    private $m_query;
+    private $m_callback;
+    private $m_result;
     
     /**
      * Create an asynchronous query to a database.
@@ -28,18 +27,10 @@ class AsyncQuery
      * @param int $connection_limit - optionally define a connection limit such that this will not create a new 
      *                                  connection until one becomes available.
      */
-    public function __construct($query, 
-                                \Closure $callback, 
-                                $host, 
-                                $username, 
-                                $password, 
-                                $database, 
-                                $port=3306)
+    public function __construct($query, \Closure $callback)
     {
         self::checkMysqlndSupport();
-
-        $this->m_connection = new \mysqli($host, $username, $password, $database, $port);
-        $this->m_connection->query($query, MYSQLI_ASYNC);
+        $this->m_query = $query;
         $this->m_callback = $callback;
     }
     
@@ -110,12 +101,7 @@ class AsyncQuery
     }
     
     
-    /**
-     * Fetch the result from the query.
-     * @return mixed - result from the query.
-     */
-    public function getResult()
-    {
-        return $this->m_result;
-    }
+    public function getResult()     { return $this->m_result; }
+    public function getQuery()      { return $this->m_query; }
+    public function getCallback()   { return $this->m_callback; }
 }

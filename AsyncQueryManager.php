@@ -15,17 +15,12 @@ namespace iRAP\AsyncQuery;
 
 class AsyncQueryManager
 {
-    private $m_queryObjects = array(); # all the mysqli connections
+    private $m_activeQueryExecutors = array(); # all the mysqli connections
     
-    private $m_host;
-    private $m_username;
-    private $m_password;
-    private $m_database;
-    private $m_port;
+    # array of arrays, with each set of arrays being a set of queries that must execute on the same connection.
+    private $m_pendingQueryArrays = array(); 
     
-    private $m_pendingQueries = array();
-    
-    private $m_connectionLimit;
+    private $m_connectionHandler;
     
     
     /**
@@ -38,54 +33,66 @@ class AsyncQueryManager
      *                                database. A new connection to execute a query will not be 
      *                                made until one becomes available. 0 means no limit
      */
-    public function __construct($host, $username, $password, $database, $connectionLimit, $port=3306)
+    public function __construct(ConnectionHandler $connectionHandler)
     {
-        $this->m_host = $host;
-        $this->m_username = $username;
-        $this->m_password = $password;
-        $this->m_database = $database;
-        $this->m_port = $port;
-        $this->m_connectionLimit = $connectionLimit;
+        $this->m_connectionHandler = $connectionHandler;
     }
     
     
     /**
      * Run an asynchronous query on the database that this object was constructed with.
      * If we have reached the connectionLimit, this will block until the connection could be added
-     * @param string $query - the mysql query to execute.
-     * @param \Closure $result_handler - function that takes the mysqli_result as a parameter and handles
-     *                             it
+     * @param Array $queries - An array of queries, or a single one, that you wish to execute on a 
+     *                         single shared connection sequentially. If you want the queries to 
+     *                         execute asynchronously then call this method once for each query
+     *                         instead.
      */
-    public function query($query, \Closure $result_handler)
+    public function query($queries)
     {
-        $queueQuery = false;
-        
-        if ($this->m_connectionLimit !== 0) # 0 represents no limit
+        if (is_array($queries))
         {
-            if (count($this->m_queryObjects) >= $this->m_connectionLimit)
+            foreach($queries as $queryObject)
             {
-                $queueQuery = true;
+                $isAsyncQueryObj = (is_object($queryObject) && ($queryObject instanceof AsyncQuery));
+                
+                if (!$isAsyncQueryObj)
+                {
+                    throw new \Exception("Invalid AsyncQueryObject specified for AsyncQueryManager.");
+                }
             }
         }
-        
-        if ($queueQuery)
+        else 
         {
-            $pendingQueryObject = new \stdClass();
-            $pendingQueryObject->query = $query;
-            $pendingQueryObject->result_handler = $result_handler;
-            $this->m_pendingQueries[] = $pendingQueryObject;
+            # If not an array, it had better be a single query object
+            $queryObject = $queries;
+            $isAsyncQueryObj = (is_object($queryObject) && ($queryObject instanceof AsyncQuery));
+            
+            if (!$isAsyncQueryObj)
+            {
+                throw new \Exception("Invalid AsyncQueryObject specified for AsyncQueryManager.");
+            }
+            
+            $queries = array($queryObject);
         }
-        else
+        
+        $this->m_pendingQueryArrays[] = $queries;
+        $this->tryToStartQuery();
+    }
+    
+    
+    /**
+     * Tries to start executing a query from the pending queue if there are any available and 
+     * if we can get a new database connection.
+     */
+    private function tryToStartQuery()
+    {
+        if (count($this->m_pendingQueryArrays) > 0)
         {
-            $queryObject = new AsyncQuery($query, 
-                                          $result_handler, 
-                                          $this->m_host, 
-                                          $this->m_username, 
-                                          $this->m_password, 
-                                          $this->m_database, 
-                                          $this->m_port);
-                
-            $this->m_queryObjects[] = $queryObject;
+            if ( ($connection = $this->m_connectionHandler->getConnection()) !== null) 
+            {
+                $queries = array_shift($this->m_pendingQueryArrays);
+                $this->m_activeQueryExecutors[] = new AsyncQueryExecutor($queries, $connection);
+            }
         }
     }
     
@@ -97,20 +104,19 @@ class AsyncQueryManager
      */
     public function run()
     {
-        foreach ($this->m_queryObjects as $index => $queryObject)
+        foreach ($this->m_activeQueryExecutors as $index => $queryExecutor)
         {
-            /* @var $queryObject AsyncQuery */
-            $handled = $queryObject->run();
+            /* @var $queryExecutor AsyncQueryExecutor */
+            $handled = $queryExecutor->run();
             
             if ($handled)
             {
-                unset($this->m_queryObjects[$index]);
+                unset($this->m_activeQueryExecutors[$index]);
                 
-                if (count($this->m_pendingQueries) > 0)
-                {
-                    $pendingQueryObject = array_shift($this->m_pendingQueries);
-                    $this->query($pendingQueryObject->query, $pendingQueryObject->result_handler);
-                }
+                # This doesnt actually close a connection, it just tells the connection handler 
+                # that one freed up.
+                $this->m_connectionHandler->close();
+                $this->tryToStartQuery();
             }
         }
     }
@@ -132,7 +138,7 @@ class AsyncQueryManager
      */
     public function countActiveQueries()
     {
-        return count($this->m_queryObjects);
+        return count($this->m_activeQueryExecutors);
     }
     
     
@@ -142,6 +148,6 @@ class AsyncQueryManager
      */
     public function countPendingQueries()
     {
-        return count($this->m_pendingQueries);
+        return count($this->m_pendingQueryArrays);
     }
 }
