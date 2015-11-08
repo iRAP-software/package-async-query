@@ -4,7 +4,7 @@
     "description": "Package to make asynchronous MySql queries a breeze.",
     "keywords": ["mysql"],
     "homepage": "https://github.com/iRAP-software",
-    "license": "none",
+    "license": "MIT",
     "authors": [
         {
             "name": "Stuart Page",
