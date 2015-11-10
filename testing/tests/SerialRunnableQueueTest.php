@@ -6,13 +6,15 @@
  * and open the template in the editor.
  */
 
+namespace iRAP\AsyncQuery;
+
 class SerialRunnableQueueTest extends AbstractTest
 {
     public function __construct() {}
     
     protected function test() 
     {
-        $connectionPool = new \iRAP\AsyncQuery\MysqliConnectionPool(
+        $connectionPool = new MysqliConnectionPool(
             5, 
             DB_HOST, 
             DB_USER, 
@@ -45,14 +47,14 @@ class SerialRunnableQueueTest extends AbstractTest
         };
         
         
-        $serialRunnableQueue = new \iRAP\AsyncQuery\SerialRunnableQueue();
+        $serialRunnableQueue = new SerialRunnableQueue();
         
         $serialRunnableQueue->add(
-            new \iRAP\AsyncQuery\AsyncQuery($slowQuery, $slowQueryCallback, $connectionPool)
+            new AsyncQuery($slowQuery, $slowQueryCallback, $connectionPool)
         );
         
         $serialRunnableQueue->add(
-            new \iRAP\AsyncQuery\AsyncQuery($fastQuery, $fastQueryCallback, $connectionPool)
+            new AsyncQuery($fastQuery, $fastQueryCallback, $connectionPool)
         );
         
         # Run until the task is completed.

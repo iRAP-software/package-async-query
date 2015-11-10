@@ -4,6 +4,8 @@
  * 
  */
 
+namespace iRAP\AsyncQuery;
+
 abstract class AbstractTest
 {
     protected $m_passed = false;
@@ -16,7 +18,7 @@ abstract class AbstractTest
      */
     private function cleanDatabase()
     {
-        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+        $mysqli = new \mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
         $mysqli->query('SET foreign_key_checks = 0');
         
         if ($result = $mysqli->query("SHOW TABLES"))

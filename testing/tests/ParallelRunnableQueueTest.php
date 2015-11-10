@@ -4,13 +4,15 @@
  * 
  */
 
+namespace iRAP\AsyncQuery;
+
 class ParallelRunnableQueueTest extends AbstractTest
 {
     public function __construct() {}
     
     protected function test() 
     {
-        $connectionPool = new \iRAP\AsyncQuery\MysqliConnectionPool(
+        $connectionPool = new MysqliConnectionPool(
             5, 
             DB_HOST, 
             DB_USER, 
@@ -43,14 +45,14 @@ class ParallelRunnableQueueTest extends AbstractTest
         };
         
         
-        $parallelRunnableQueue = new \iRAP\AsyncQuery\ParallelRunnableQueue();
+        $parallelRunnableQueue = new ParallelRunnableQueue();
         
         $parallelRunnableQueue->add(
-            new \iRAP\AsyncQuery\AsyncQuery($slowQuery, $slowQueryCallback, $connectionPool)
+            new AsyncQuery($slowQuery, $slowQueryCallback, $connectionPool)
         );
         
         $parallelRunnableQueue->add(
-            new \iRAP\AsyncQuery\AsyncQuery($fastQuery, $fastQueryCallback, $connectionPool)
+            new AsyncQuery($fastQuery, $fastQueryCallback, $connectionPool)
         );
         
         # Run until the task is completed.

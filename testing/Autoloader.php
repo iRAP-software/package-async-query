@@ -9,6 +9,8 @@
  * scripts is fine.
  */
 
+namespace iRAP\AsyncQuery;
+
 class Autoloader
 {
     private $m_classDirs = array();
@@ -86,6 +88,11 @@ class Autoloader
             }
         }
         
+        if(!$result)
+        {
+            print "could not find $filename" . PHP_EOL;
+        }
+        
         return $result;
     }
 
@@ -101,6 +108,7 @@ class Autoloader
      */
     public static function convertClassNameToFileName($className)
     {
+        $className = str_replace('iRAP\AsyncQuery\\', "", $className);
         $filename = $className . '.php';
         return $filename;
     }

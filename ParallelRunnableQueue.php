@@ -8,27 +8,8 @@
 
 namespace iRAP\AsyncQuery;
 
-class ParallelRunnableQueue implements RunnableInterface
+class ParallelRunnableQueue extends AbstractRunnableQueue
 {   
-    private $m_items;
-    private $m_callback; # callback to execute when depleted. Can be null.
-    
-    /**
-     * Construct a query manager to manage all the asynchronous queries.
-     * @param function $callback - optional is_callable object/function to execute when empty.
-     */
-    public function __construct($callback=null)
-    {
-        $this->m_callback = $callback;
-    }
-    
-    
-    public function add(RunnableInterface $query)
-    {
-        $this->m_items[] = $query;
-    }
-    
-    
     /**
      * Call this method to check if the asynchronous queries have returned results, and handle
      * them if they have. If connections free up, and there are pending queries, this will 
@@ -36,14 +17,14 @@ class ParallelRunnableQueue implements RunnableInterface
      */
     public function run()
     {
-        foreach ($this->m_items as $index => $runnable)
+        foreach ($this->m_runnables as $index => $runnable)
         {
             /* @var $runnable RunnableInterface */
             $handled = $runnable->run();
             
             if ($handled)
             {
-                unset($this->m_items[$index]);
+                unset($this->m_runnables[$index]);
             }
         }
         
@@ -57,15 +38,5 @@ class ParallelRunnableQueue implements RunnableInterface
         }
         
         return $queueCompleted;
-    }
-    
-    
-    /**
-     * Fetch the number of query objects we have left to process.
-     * @return int - the number of outstanding queries.
-     */
-    public function count()
-    {
-        return count($this->m_items);
     }
 }

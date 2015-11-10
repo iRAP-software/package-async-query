@@ -16,7 +16,7 @@ The AsyncQuery object takes a callback. It is important to remember that this ca
 ### Example Usage:
 ```
 # Create the connection pool
-$connectionPool = new \iRAP\AsyncQuery\MysqliConnectionPool(
+$connectionPool = new MysqliConnectionPool(
     5, # max connections
     DB_HOST,
     DB_USER,
@@ -33,7 +33,7 @@ $queryCallback = function($result) {
     }
 };
 
-$asyncQuery = new \iRAP\AsyncQuery\AsyncQuery(
+$asyncQuery = new AsyncQuery(
     $sql,
     $queryCallback,
     $connectionPool
@@ -66,19 +66,19 @@ Queues, like the `AsyncQuery` object, do nothing on their own. The developer nee
 ```
 ...
 
-$asyncQuery1 = new \iRAP\AsyncQuery\AsyncQuery(
+$asyncQuery1 = new AsyncQuery(
     $sql1,
     $queryCallback1,
     $connectionPool
 );
 
-$asyncQuery2 = new \iRAP\AsyncQuery\AsyncQuery(
+$asyncQuery2 = new AsyncQuery(
     $sql2,
     $queryCallback2,
     $connectionPool2 # <-- different pool, perhaps for a different database?
 );
 
-$parallelRunnableQueue = new \iRAP\AsyncQuery\ParallelRunnableQueue($queueCallback);
+$parallelRunnableQueue = new ParallelRunnableQueue($queueCallback);
 
 $parallelRunnableQueue->add($asyncQuery1);
 $parallelRunnableQueue->add($asyncQuery2);
