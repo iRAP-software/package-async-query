@@ -8,7 +8,7 @@
 namespace iRAP\AsyncQuery;
 
 class SerialRunnableQueue extends AbstractRunnableQueue
-{   
+{
     /**
      * Call this method to check if the asynchronous queries have returned results, and handle
      * them if they have. If connections free up, and there are pending queries, this will 

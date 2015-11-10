@@ -28,7 +28,7 @@ abstract class AbstractTest
                 $mysqli->query('DROP TABLE IF EXISTS ' . $row[0]);
             }
         }
-
+        
         $mysqli->query('SET foreign_key_checks = 1');
         $mysqli->close();
     }
