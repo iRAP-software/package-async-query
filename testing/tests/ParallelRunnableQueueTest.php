@@ -30,8 +30,8 @@ class ParallelRunnableQueueTest extends AbstractTest
             
             if ($result == FALSE)
             {
-                throw new Exception("error running slow query");
-            }            
+                throw new \Exception("error running slow query");
+            }
         };
         
         
@@ -40,7 +40,7 @@ class ParallelRunnableQueueTest extends AbstractTest
         $fastQueryCallback = function($result) use($self) {
             if (isset($self->m_executedSlowQuery) && $self->m_executedSlowQuery === true)
             {
-                throw new Exception("Slow query executed before fast query");
+                throw new \Exception("Slow query executed before fast query");
             }
         };
         

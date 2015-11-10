@@ -32,8 +32,8 @@ class SerialRunnableQueueTest extends AbstractTest
             
             if ($result == FALSE)
             {
-                throw new Exception("error running slow query");
-            }            
+                throw new \Exception("error running slow query");
+            }
         };
         
         
@@ -42,7 +42,7 @@ class SerialRunnableQueueTest extends AbstractTest
         $fastQueryCallback = function($result) use($self) {
             if (!isset($self->m_executedSlowQuery))
             {
-                throw new Exception("Fast query executed before slow query finished.");
+                throw new \Exception("Fast query executed before slow query finished.");
             }
         };
         
