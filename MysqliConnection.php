@@ -39,6 +39,7 @@ class MysqliConnection
     
     /**
      * Fetch the mysqli object this has.
+     * @return \mysqli
      */
     public function getMysqli()
     {

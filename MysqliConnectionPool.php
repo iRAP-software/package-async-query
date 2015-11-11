@@ -107,4 +107,34 @@ class MysqliConnectionPool
         unset($this->m_assignedConnections[$connection->getId()]);
         $this->m_availableConnections[] = $connection;
     }
+    
+    
+    /**
+     * Escape a value using one of this pool's connections. If all connections are busy
+     * then this will not wait, but use one of the busy connections.
+     * @param string $valueToEscape - the value to escape.
+     * @return string - the escaped value
+     * @throws Exception - if this pool does not have any connections (stupid but possible)
+     */
+    public function escapeValue($valueToEscape)
+    {
+        if (($connection = $this->getConnection()) !== null)
+        {
+            $mysqli = $connection->getMysqli();
+            $escapedValue = $mysqli->escape_string($valueToEscape);
+        }
+        elseif(count($this->m_assignedConnections) > 0)
+        {
+            $connections = array_values($this->m_assignedConnections);
+            $connection = $connections[0];
+            $mysqli = $connection->getMysqli();
+            $escapedValue = $mysqli->escape_string($valueToEscape);
+        }
+        else
+        {
+            throw new Exception("Pool has no connections to escape with.");
+        }
+        
+        return $escapedValue;
+    }
 }
