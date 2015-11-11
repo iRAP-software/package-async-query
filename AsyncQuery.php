@@ -58,7 +58,7 @@ class AsyncQuery implements RunnableInterface
         
         if ($this->m_completed === true)
         {
-            throw new Exception("Trying to execute an asyncQuery twice!?");
+            throw new \Exception("Trying to execute an asyncQuery twice!?");
         }
         
         if ($this->m_connection === null) # connection will be null if we havent sent query.
@@ -114,7 +114,7 @@ class AsyncQuery implements RunnableInterface
         {
             $msg = "Called tryToSendQuery when we already had a connection, " .
                    "suggesting we already sent the query";
-            throw new Exception($msg);
+            throw new \Exception($msg);
         }
         
         if ( ($connection = $this->m_connectionPool->getConnection()) != null)
@@ -136,7 +136,7 @@ class AsyncQuery implements RunnableInterface
     {
         if ($this->m_connection === null)
         {
-            throw new Exception("Trying to return a nonexistent connection?");
+            throw new \Exception("Trying to return a nonexistent connection?");
         }
         
         $this->m_connectionPool->returnConnection($this->m_connection);
