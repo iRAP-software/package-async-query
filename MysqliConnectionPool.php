@@ -18,6 +18,8 @@ class MysqliConnectionPool
     private $m_db;
     private $m_port;
     
+    private $m_startupQueries = array();
+    
     
     /**
      * Create a connection pool to a MySql database.
@@ -27,8 +29,10 @@ class MysqliConnectionPool
      * @param string $password - the password to authenticate with
      * @param string $db - specify the name of the database to connect to.
      * @param int $port - optionally specify the database connection port if not the default
+     * @param string[] $startupQueries - startup queries to initialize every connection with. e.g.
+     *                                    SET SESSION group_concat_max_len = 1000000;
      */
-    public function __construct($numConnections, $host, $user, $password, $db, $port=3306) 
+    public function __construct($numConnections, $host, $user, $password, $db, $port=3306, $startupQueries = array()) 
     {
         $this->m_maxConnections = $numConnections;
         $this->m_host = $host;
@@ -36,16 +40,35 @@ class MysqliConnectionPool
         $this->m_password = $password;
         $this->m_db = $db;
         $this->m_port = $port;
+        $this->m_startupQueries = $startupQueries;
         
         for ($i=0; $i<$numConnections; $i++)
         {
-            $this->m_availableConnections[] = new MysqliConnection(
+            $connection = new MysqliConnection(
                 $host, 
                 $user, 
                 $password, 
-                $db, 
+                $db,
                 $port
             );
+            
+            /* @var $mysqli \mysqli */
+            $mysqli = $connection->getMysqli();
+            
+            if (count($this->m_startupQueries) > 0)
+            {
+                foreach ($this->m_startupQueries as $startupQuery)
+                {
+                    $result = $mysqli->query($startupQuery);
+                    
+                    if ($result === false)
+                    {
+                       throw new \Exception("Startup query failed: " . $mysqli->error); 
+                    }
+                }
+            }
+            
+            $this->m_availableConnections[] = $connection;
         }
     }
     
@@ -77,7 +100,7 @@ class MysqliConnectionPool
     {
         if (!isset($this->m_assignedConnections[$connection->getId()]))
         {
-            throw new Exception("Something returned a connection that isn't in our assigned list!");
+            throw new \Exception("Something returned a connection that isn't in our assigned list!");
         }
         
         # Move the connection back from the assigned list to the available list.
