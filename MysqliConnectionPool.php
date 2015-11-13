@@ -137,4 +137,21 @@ class MysqliConnectionPool
         
         return $escapedValue;
     }
+    
+    
+    /**
+     * Close all the connections in the pool.
+     */
+    public function close()
+    {
+        foreach ($this->m_assignedConnections as $connection)
+        {
+            $connection->close();
+        }
+        
+        foreach ($this->m_availableConnections as $connection)
+        {
+            $connection->close();
+        }
+    }
 }
