@@ -81,6 +81,7 @@ class AsyncQuery implements RunnableInterface
                     {
                         /* @var $result \mysqli_result */
                         $this->m_result = $result;
+                        $this->returnConnection(); 
                         
                         if (is_callable($this->m_callback))
                         {
@@ -88,7 +89,6 @@ class AsyncQuery implements RunnableInterface
                             $callback($result);
                         }
                         
-                        $this->returnConnection();
                         $processed = true;
                     }
                     else
@@ -116,7 +116,7 @@ class AsyncQuery implements RunnableInterface
                    "suggesting we already sent the query";
             throw new \Exception($msg);
         }
-        
+    
         if ( ($connection = $this->m_connectionPool->getConnection()) != null)
         {
             /* @var $connection MysqliConnection */
