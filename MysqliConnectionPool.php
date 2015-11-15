@@ -88,6 +88,14 @@ class MysqliConnectionPool
             $this->m_assignedConnections[$connection->getId()] = $connection;
         }
         
+        if 
+        (
+            count($this->m_availableConnections) === 0 &&
+            count($this->m_assignedConnections) === 0
+        )
+        {
+            throw new Exception("Trying to get a connection from a pool that has none");
+        }
         return $connection;
     }
     
@@ -122,6 +130,7 @@ class MysqliConnectionPool
         {
             $mysqli = $connection->getMysqli();
             $escapedValue = $mysqli->escape_string($valueToEscape);
+            $this->returnConnection($connection);
         }
         elseif(count($this->m_assignedConnections) > 0)
         {
