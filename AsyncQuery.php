@@ -93,7 +93,8 @@ class AsyncQuery implements RunnableInterface
                     }
                     else
                     {
-                        throw new \Exception(sprintf("MySQLi Error: %s", mysqli_error($link)));
+                        $errMsg = "MySQLi Error: " . mysqli_error($link) . PHP_EOL . $this->m_query;
+                        throw new \Exception($errMsg);
                     }
                 }
             }
