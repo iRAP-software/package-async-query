@@ -55,4 +55,8 @@ class BucketQueue implements QueueInterface
             }
         }
     }
+    
+    
+    public function count() { return $this->m_engine->count(); } 
+    public function run() { return $this->m_engine->run(); }
 }
