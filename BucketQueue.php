@@ -19,13 +19,11 @@ class BucketQueue implements QueueInterface
     /**
      * Construct a bucket queu object to manage runnable elements.
      * @param int $threshold - max number of elements to take before self-invokation.
-     * @param function $callback - optional is_callable object/function to execute when empty.
      * @param int $sleepTime - optionally specify the number of microseconds to sleep between
      *                          iterations of running the queu if we reach the threshold.
      */
-    public function __construct(QueueInterface $queue, $threshold, $callback=null, $sleepTime=1)
+    public function __construct(QueueInterface $queue, $threshold, $sleepTime=1)
     {
-        parent::__construct($callback);
         $this->m_threshold = $threshold;
         $this->m_sleepTime = $sleepTime;
         $this->m_engine = $queue;
