@@ -34,7 +34,7 @@ class RunnableStack extends AbstractRunnableQueue
             }
             else
             {
-                array_push($runnable);
+                array_push($this->m_runnables, $runnable);
             }
         }
         
