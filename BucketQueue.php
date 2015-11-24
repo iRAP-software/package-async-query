@@ -4,14 +4,17 @@
  * A bucket queue will fill up until reaches a certain point. When you reach this point
  * the queue will self-initiate and keep running until it contains less elemeents thn the
  * threshold.
+ * This class just "elaborates" anoterh queue by adding this behaviour to it, so you can 
+ * add this "bucket" behaviour to any of the existing QueueInterface objects.
  */
 
 namespace iRAP\AsyncQuery;
 
-class BucketQueue extends AbstractRunnableQueue
+class BucketQueue implements QueueInterface
 {
     private $m_threshold;
-    private $m_sleepTime;
+    private $m_sleepTime;    
+    private $m_engine; # the queue that this object elaborates.
     
     /**
      * Construct a bucket queu object to manage runnable elements.
@@ -20,11 +23,12 @@ class BucketQueue extends AbstractRunnableQueue
      * @param int $sleepTime - optionally specify the number of microseconds to sleep between
      *                          iterations of running the queu if we reach the threshold.
      */
-    public function __construct($threshold, $callback=null, $sleepTime=1)
+    public function __construct(QueueInterface $queue, $threshold, $callback=null, $sleepTime=1)
     {
         parent::__construct($callback);
         $this->m_threshold = $threshold;
         $this->m_sleepTime = $sleepTime;
+        $this->m_engine = $queue;
     }
     
     
@@ -35,7 +39,7 @@ class BucketQueue extends AbstractRunnableQueue
      */
     public function add(RunnableInterface $item)
     {
-        $this->m_runnables[] = $item;
+        $this->m_engine->add($item);
         
         while ($this->count() > $this->m_threshold)
         {
@@ -50,40 +54,5 @@ class BucketQueue extends AbstractRunnableQueue
                 break;
             }
         }
-    }
-    
-    
-    /**
-     * Call this method to check if the asynchronous queries have returned results, and handle
-     * them if they have. If connections free up, and there are pending queries, this will 
-     * send them off to the database.
-     * @return boolean - true if everything has been completed, false otherwise.
-     */
-    public function run()
-    {
-        if ($this->count() > 0)
-        {
-            $runnable = array_pop($this->m_runnables);
-            
-            /* @var $runnable RunnableInterface */
-            $processed = $runnable->run();
-            
-            if ($processed)
-            {
-                if ($this->count() === 0 && $this->m_callback != null)
-                {
-                    $callback = $this->m_callback;
-                    $callback();
-                }
-            }
-            else
-            {
-                array_push($runnable);
-            }
-        }
-        
-        # Return whether we are "handled" (empty) or not.
-        $handled = ($this->count() === 0);
-        return $handled;
     }
 }
