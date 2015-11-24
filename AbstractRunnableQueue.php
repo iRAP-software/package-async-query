@@ -7,7 +7,7 @@
  */
 namespace iRAP\AsyncQuery;
 
-abstract class AbstractRunnableQueue implements RunnableInterface
+abstract class AbstractRunnableQueue implements QueueInterface
 {
     protected $m_runnables;
     protected $m_callback; # callback to execute when depleted. Can be null.
