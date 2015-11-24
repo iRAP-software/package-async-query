@@ -22,6 +22,10 @@ abstract class AbstractRunnableQueue implements RunnableInterface
     }
     
     
+    /**
+     * Add a runnable element to the queue
+     * @param \iRAP\AsyncQuery\RunnableInterface $item
+     */
     public function add(RunnableInterface $item)
     {
         $this->m_runnables[] = $item;
