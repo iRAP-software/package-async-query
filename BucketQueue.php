@@ -33,24 +33,33 @@ class BucketQueue implements QueueInterface
     /**
      * Add a runnable element to the queue.
      * If adding this item puts the queue over the threshold, then this will self-invoke.
+     * This method has to use a static variable to prevent causing issues if running the queue
+     * causes more tasks to be added to the queu.
      * @param \iRAP\AsyncQuery\RunnableInterface $item
      */
     public function add(RunnableInterface $item)
     {
+        static $runningBucketLoop = false;
         $this->m_engine->add($item);
         
-        while ($this->count() > $this->m_threshold)
+        if ($this->count() > $this->m_threshold && !$runningBucketLoop)
         {
-            $this->run();
+            while ($this->count() > $this->m_threshold)
+            {
+                $runningBucketLoop = true;
+                $this->run();
+                
+                if ($this->count() > $this->m_threshold)
+                {
+                    usleep($this->m_sleepTime);
+                }
+                else
+                {
+                    break;
+                }
+            }
             
-            if ($this->count() > $this->m_threshold)
-            {
-                usleep($this->m_sleepTime);
-            }
-            else
-            {
-                break;
-            }
+            $runningBucketLoop = false;
         }
     }
     
