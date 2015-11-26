@@ -17,14 +17,17 @@ class ParallelRunnableQueue extends AbstractRunnableQueue
      */
     public function run()
     {
-        foreach ($this->m_runnables as $index => $runnable)
+        if (count($this->m_runnables) > 0)
         {
-            /* @var $runnable RunnableInterface */
-            $handled = $runnable->run();
-            
-            if ($handled)
+            foreach ($this->m_runnables as $index => $runnable)
             {
-                unset($this->m_runnables[$index]);
+                /* @var $runnable RunnableInterface */
+                $handled = $runnable->run();
+                
+                if ($handled)
+                {
+                    unset($this->m_runnables[$index]);
+                }
             }
         }
         
