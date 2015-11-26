@@ -16,7 +16,6 @@ class AsyncQuery implements RunnableInterface
 {
     private $m_query;
     private $m_callback;
-    private $m_result;
     private $m_completed = false; # flag for if we have successfully sent our query and run the callback.
     
     private $m_connection = null; # /@var $m_connection MysqliConnection */ 
@@ -80,8 +79,6 @@ class AsyncQuery implements RunnableInterface
                     if (($result = $link->reap_async_query()) !== FALSE) 
                     {
                         /* @var $result \mysqli_result */
-                        $this->m_result = $result;
-                        $this->returnConnection(); 
                         
                         if (is_callable($this->m_callback))
                         {
@@ -89,11 +86,12 @@ class AsyncQuery implements RunnableInterface
                             $callback($result);
                         }
                         
+                        $this->returnConnection(); 
                         $processed = true;
                     }
                     else
                     {
-                        $errMsg = "MySQLi Error: " . mysqli_error($link) . PHP_EOL . $this->m_query;
+                        $errMsg = "MySQLi Error: " . mysqli_error($link) . PHP_EOL . $this->m_query . PHP_EOL;
                         throw new \Exception($errMsg);
                     }
                 }
@@ -117,7 +115,7 @@ class AsyncQuery implements RunnableInterface
                    "suggesting we already sent the query";
             throw new \Exception($msg);
         }
-    
+        
         if ( ($connection = $this->m_connectionPool->getConnection()) != null)
         {
             /* @var $connection MysqliConnection */
@@ -157,19 +155,7 @@ class AsyncQuery implements RunnableInterface
     }
     
     
-    /**
-     * Release the result from memory
-     */
-    public function free()
-    {
-        if (is_object($this->m_result))
-        {
-            mysqli_free_result($this->m_result);
-        }
-    }
     
-    
-    public function getResult()     { return $this->m_result; }
     public function getQuery()      { return $this->m_query; }
     public function getCallback()   { return $this->m_callback; }
 }
