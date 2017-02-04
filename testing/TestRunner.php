@@ -27,8 +27,8 @@ class TestRunner
         $timeStart = microtime(true);
         
         $tests = array(
-            new iRAP\AsyncQuery\Testing\Tests\SerialRunnableQueueTest($dbHost, $dbUser, $dbPassword, $dbName),
-            new iRAP\AsyncQuery\Testing\Tests\ParallelRunnableQueueTest($dbHost, $dbUser, $dbPassword, $dbName)
+            new Tests\SerialRunnableQueueTest($this->m_dbHost, $this->m_dbUser, $this->m_dbPassword, $this->m_dbName),
+            new Tests\ParallelRunnableQueueTest($this->m_dbHost, $this->m_dbUser, $this->m_dbPassword, $this->m_dbName)
         );
         
         $failedTests = array();

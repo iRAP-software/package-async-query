@@ -12,12 +12,12 @@ class SerialRunnableQueueTest extends MysqlBaseTest
 {
     protected function test() 
     {
-        $connectionPool = new MysqliConnectionPool(
+        $connectionPool = new \iRAP\AsyncQuery\MysqliConnectionPool(
             5, 
             $this->m_dbHost, 
             $this->m_dbUser, 
-            $this->m_dbPassword, 
-            $this->m_dbPassword
+            $this->m_dbPassword,
+            $this->m_dbName
         );
         
         
@@ -45,14 +45,14 @@ class SerialRunnableQueueTest extends MysqlBaseTest
         };
         
         
-        $serialRunnableQueue = new SerialRunnableQueue();
+        $serialRunnableQueue = new \iRAP\Queues\SerialRunnableQueue();
         
         $serialRunnableQueue->add(
-            new AsyncQuery($slowQuery, $slowQueryCallback, $connectionPool)
+            new \iRAP\AsyncQuery\AsyncQuery($slowQuery, $slowQueryCallback, $connectionPool)
         );
         
         $serialRunnableQueue->add(
-            new AsyncQuery($fastQuery, $fastQueryCallback, $connectionPool)
+            new \iRAP\AsyncQuery\AsyncQuery($fastQuery, $fastQueryCallback, $connectionPool)
         );
         
         # Run until the task is completed.

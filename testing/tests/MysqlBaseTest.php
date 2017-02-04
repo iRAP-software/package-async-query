@@ -16,7 +16,7 @@ abstract class MysqlBaseTest extends AbstractTest
     
     public function __construct($dbHost, $dbUser, $dbPassword, $dbName)
     {
-        $this->m_dbHOst = $dbHost;
+        $this->m_dbHost = $dbHost;
         $this->m_dbUser = $dbUser;
         $this->m_dbPassword = $dbPassword;
         $this->m_dbName = $dbName;
@@ -43,6 +43,12 @@ abstract class MysqlBaseTest extends AbstractTest
         
         $mysqli->query('SET foreign_key_checks = 1');
         $mysqli->close();
+    }
+    
+    
+    protected function cleanup() 
+    {
+        // do nothing
     }
 }
 

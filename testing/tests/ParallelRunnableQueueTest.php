@@ -10,12 +10,12 @@ class ParallelRunnableQueueTest extends MysqlBaseTest
 {
     protected function test() 
     {
-        $connectionPool = new MysqliConnectionPool(
+        $connectionPool = new \iRAP\AsyncQuery\MysqliConnectionPool(
             5, 
             $this->m_dbHost, 
             $this->m_dbUser, 
             $this->m_dbPassword, 
-            $this->m_dbPassword
+            $this->m_dbName
         );
         
         
@@ -43,14 +43,14 @@ class ParallelRunnableQueueTest extends MysqlBaseTest
         };
         
         
-        $parallelRunnableQueue = new ParallelRunnableQueue();
+        $parallelRunnableQueue = new \iRAP\Queues\ParallelRunnableQueue();
         
         $parallelRunnableQueue->add(
-            new AsyncQuery($slowQuery, $slowQueryCallback, $connectionPool)
+            new \iRAP\AsyncQuery\AsyncQuery($slowQuery, $slowQueryCallback, $connectionPool)
         );
         
         $parallelRunnableQueue->add(
-            new AsyncQuery($fastQuery, $fastQueryCallback, $connectionPool)
+            new \iRAP\AsyncQuery\AsyncQuery($fastQuery, $fastQueryCallback, $connectionPool)
         );
         
         # Run until the task is completed.
