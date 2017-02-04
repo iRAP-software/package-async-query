@@ -6,20 +6,18 @@
  * and open the template in the editor.
  */
 
-namespace iRAP\AsyncQuery;
+namespace iRAP\AsyncQuery\Testing\Tests;
 
-class SerialRunnableQueueTest extends AbstractTest
+class SerialRunnableQueueTest extends MysqlBaseTest
 {
-    public function __construct() {}
-    
     protected function test() 
     {
         $connectionPool = new MysqliConnectionPool(
             5, 
-            DB_HOST, 
-            DB_USER, 
-            DB_PASSWORD, 
-            DB_NAME
+            $this->m_dbHost, 
+            $this->m_dbUser, 
+            $this->m_dbPassword, 
+            $this->m_dbPassword
         );
         
         

@@ -4,34 +4,12 @@
  * 
  */
 
-namespace iRAP\AsyncQuery;
+namespace iRAP\AsyncQuery\Testing\Tests;
 
 abstract class AbstractTest
 {
     protected $m_passed = false;
     protected $m_errorMessage = "";
-    
-    /**
-     * Clean the database by removing all tables.
-     * Code taken from 
-     * https://stackoverflow.com/questions/3493253/how-to-drop-all-tables-in-database-without-dropping-the-database-itself
-     */
-    private function cleanDatabase()
-    {
-        $mysqli = new \mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-        $mysqli->query('SET foreign_key_checks = 0');
-        
-        if ($result = $mysqli->query("SHOW TABLES"))
-        {
-            while ($row = $result->fetch_array(MYSQLI_NUM))
-            {
-                $mysqli->query('DROP TABLE IF EXISTS ' . $row[0]);
-            }
-        }
-        
-        $mysqli->query('SET foreign_key_checks = 1');
-        $mysqli->close();
-    }
     
     
     /**
@@ -41,10 +19,22 @@ abstract class AbstractTest
     protected abstract function test();
     
     
+    /**
+     * Run any setup processes that need to run before the test, such as prepare
+     * a database.
+     */
+    protected abstract function init();
+    
+    
+    /**
+     * Run any cleanup processes that should run after a test.
+     */
+    protected abstract function cleanup();
+    
     
     public function run()
     {
-        $this->cleanDatabase();
+        $this->init();
         
         try
         {
@@ -55,6 +45,8 @@ abstract class AbstractTest
             $this->m_passed = false;
             $this->m_errorMessage = $ex->getMessage();
         }
+        
+        $this->cleanup();
     }
     
     # Accessors
