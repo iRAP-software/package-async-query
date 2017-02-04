@@ -155,7 +155,6 @@ class AsyncQuery implements \iRAP\Queues\RunnableInterface
     }
     
     
-    
     public function getQuery()      { return $this->m_query; }
     public function getCallback()   { return $this->m_callback; }
 }
