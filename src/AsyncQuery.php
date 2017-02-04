@@ -12,7 +12,7 @@
 
 namespace iRAP\AsyncQuery;
 
-class AsyncQuery implements RunnableInterface
+class AsyncQuery implements \iRAP\Queues\RunnableInterface
 {
     private $m_query;
     private $m_callback;
