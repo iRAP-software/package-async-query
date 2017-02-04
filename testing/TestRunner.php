@@ -4,9 +4,18 @@ namespace iRAP\AsyncQuery\Testing;
 
 class TestRunner
 {
+    private $m_dbHost;
+    private $m_dbUser;
+    private $m_dbPassword;
+    private $m_dbName;
+    
+    
     public function __construct($dbHost, $dbUser, $dbPassword, $dbName)
     {
-        
+        $this->m_dbHost = $dbHost;
+        $this->m_dbUser = $dbUser;
+        $this->m_dbPassword = $dbPassword;
+        $this->m_dbName = $dbName;
     }
     
     
@@ -16,10 +25,10 @@ class TestRunner
     public function run()
     {
         $timeStart = microtime(true);
-
+        
         $tests = array(
-            new iRAP\AsyncQuery\Testing\Tests\SerialRunnableQueueTest(),
-            new iRAP\AsyncQuery\Testing\Tests\ParallelRunnableQueueTest()
+            new iRAP\AsyncQuery\Testing\Tests\SerialRunnableQueueTest($dbHost, $dbUser, $dbPassword, $dbName),
+            new iRAP\AsyncQuery\Testing\Tests\ParallelRunnableQueueTest($dbHost, $dbUser, $dbPassword, $dbName)
         );
         
         $failedTests = array();
@@ -46,7 +55,7 @@ class TestRunner
                 print get_class($test) . ": " . $test->getErrorMessage() . PHP_EOL;
             }
         }
-
+        
         print "Time Taken: $timeTaken" . PHP_EOL;
         print "=====================" . PHP_EOL;
         if (count($failedTests) > 0)
