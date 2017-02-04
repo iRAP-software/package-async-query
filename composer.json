@@ -23,8 +23,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "iRAP\\Queues\\Testing": "testing",
-            "iRAP\\Queues\\Testing\\Tests": "testing/tests"
+            "iRAP\\Queues\\Testing\\": "testing",
+            "iRAP\\Queues\\Testing\\Tests\\": "testing/tests"
         }
     }
 }
