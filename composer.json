@@ -13,11 +13,18 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=5.5.0",
+        "irap/queues ": "dev-master"
     },
     "autoload": {
         "psr-4": {
-            "iRAP\\AsyncQuery\\": ""
+            "iRAP\\AsyncQuery\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "iRAP\\Queues\\Testing": "testing",
+            "iRAP\\Queues\\Testing\\Tests": "testing/tests"
         }
     }
 }
